@@ -1,0 +1,98 @@
+\documentclass{article}
+\usepackage{amsfonts,amssymb,amsthm}
+
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{example}{Example}
+
+\begin{document}
+	\title{The Curry-Howard Correspondence for Mathematicians}
+	\author{Daniel Schepler}
+	
+	\maketitle
+	
+	\section{Introduction}
+	In my experience, many presentations of the Curry-Howard correspondence seem to be targeted either to computer scientists or to specialists in mathematical and formal logic.  The aim of this article is to provide an introduction which should be accessible to mathematicians and mathematics students in general.
+	
+	\section{Beginning Observations}
+	To begin with, we will make a very simple, almost trivial observation:
+
+	\begin{proposition}
+	Proposition: Let $p$ be a proposition, i.e. a mathematical statement which is either true or false.  Then there exists a set $S$ such that $p$ is equivalent to $S \ne \emptyset$.
+	
+	\begin{proof}If $p$ is true, then $S := \{ 0 \}$ works; if $p$ is false, then $S := \emptyset$ works.
+		\end{proof}
+	\end{proposition}	
+	
+	The next step will be to make some observations which will allow us to greatly refine the above construction into something which is more functorial in nature.
+	
+	\begin{proposition}
+	\begin{enumerate}
+		\item If $S$ and $T$ are sets, then $(S\ne\emptyset) \land (T\ne\emptyset)$ if and only if $S \times T\ne\emptyset$.
+		\item If $S$ and $T$ are sets, then $(S\ne\emptyset) \lor (T\ne\emptyset)$ if and only if $S \sqcup T \ne \emptyset$.
+		\item If $S$ and $T$ are sets, then $(S\ne\emptyset) \rightarrow (T\ne\emptyset)$ if and only if $T^S \ne \emptyset$, where $T^S$ is the set of functions $f : S \to T$.
+		\item In particular, if $S$ is a set, then $\lnot(S\ne \emptyset)$ if and only if $\emptyset^S\ne \emptyset$.
+		\item If $(S_i)_{i\in I}$ is an indexed family of sets, then $\forall i\in I, S_i \ne \emptyset$ if and only if $\prod_{i\in I} S_i \ne \emptyset$.
+		\item If $(S_i)_{i\in I}$ is an indexed family of sets, then $\exists i\in I, S_i \ne \emptyset$ if and only if $\bigsqcup_{i\in I} S_i \ne \emptyset$.
+	\end{enumerate}
+	Note that in 2, we could also have used $S\cup T$ instead of $S\sqcup T$.  The reason we choose $S\sqcup T$, as we will see later, is that it is easier to define functions with domain $S\sqcup T$ than it is to define functions with domain $S\cup T$.  Similarly in 6, we could have used $\bigcup_{i\in I} S_i$, but again, it is easier to define functions on $\bigsqcup_{i\in I} S_i$ than on $\bigcup_{i\in I} S_i$.
+	
+	\begin{proof}
+	\begin{enumerate}
+		\item ($\Rightarrow$): Choose $x\in S$ and $y\in T$.  Then $(x, y) \in S\times T$.  ($\Leftarrow$): Suppose $p = (x, y) \in S\times T$; then $x\in S$ and $y\in T$.
+		\item ($\Rightarrow$): For case 1, if $S \ne emptyset$, then choose $x\in S$; then also $x\in S \sqcup T$.  For case 2, if $T \ne \emptyset$, then choose $y\in T$; then also $y\in S \sqcup T$.  ($\Leftarrow$): If $x \in S\sqcup T$, then either $x\in S$ or $x\in T$.  In the first case, we get $S\ne\emptyset$; in the second case, we get $T\ne\emptyset$.
+		\item ($\Rightarrow$): Suppose $(S\ne\emptyset) \rightarrow (T\ne\emptyset)$.  Then in case $S=\emptyset$, then the empty function is always in $T^S$.  Otherwise, if $S\ne\emptyset$, then also $T\ne\emptyset$; choosing $y\in T$, then the constant function sending every element of $S$ to $y$ is in $T^S$.  ($\Leftarrow$): Suppose $T^S \ne \emptyset$ and $S\ne \emptyset$.  Then choosing $f\in T^S$ and $x\in S$, we have $f(x)\in T$, so $T\ne\emptyset$.
+		\item This follows by the observation that $\lnot P$ is equivalent to $P \rightarrow \bot$ where $\bot$ is the false proposition, and $\bot$ in turn is equivalent to $\emptyset \ne \emptyset$.
+		\item ($\Rightarrow$): This implication is precisely one of the standard versions of the axiom of choice.  ($\Leftarrow$): Suppose $(x_i)_{i\in I} \in \prod_{i\in I} S_i$.  Then for any $i\in I$, we have $x_i \in S_i$, so $S_i \ne \emptyset$.
+		\item ($\Rightarrow$): Suppose $\exists i \in I, S_i \ne \emptyset$.  Then choose some such $i$, and for that $i$, choose $x\in S_i$.  Then $x\in \bigsqcup_{i\in I} S_i$ also.  ($\Leftarrow$): Suppose $\bigsqcup_{i\in I} S_i \ne \emptyset$, and choose $x \in \bigsqcup_{i\in I} S_i$.  Then $x\in S_i$ for some $i\in I$, and for this $i$, we conclude $S_i \ne \emptyset$.  
+	\end{enumerate}
+	\end{proof}\end{proposition}
+	
+	This allows us to refine the original observation as follows: first, take your proposition and break it down as much as possible into combinations of atomic propositions via the standard logical connectives.  Then, for each atomic proposition, choose a set whose nonemptiness is equivalent to that proposition, and recursively use the last result to build up a set whose nonemptiness is equivalent to the compound proposition.
+	
+	\begin{example}
+		Let us take the proposition $(p \rightarrow (q \rightarrow r)) \rightarrow ((p \rightarrow q) \rightarrow (p \rightarrow r))$.  Here, the atomic propositions are $p, q, r$; let us select sets $A, B, C$ such that $p$ is equivalent to $A \ne \emptyset$, $q$ is equivalent to $B \ne \emptyset$, and $r$ is equivalent to $C \ne \emptyset$.  In order to avoid deeply nested exponential notation, let us use the notation $X \multimap Y$ in place of $Y^X$.  Then by the above, the proposition is equivalent to $(A \multimap (B \multimap C)) \multimap ((A \multimap B) \multimap (A \multimap C))$ being nonempty.
+	\end{example}
+	
+	\section{The Curry-Howard Correspondence}
+	One half of the Curry-Howard correspondence is this easy observation: if you can explicitly name an element of the corresponding set, then that automatically gives a proof of the desired proposition.
+	
+	\begin{example}
+		For any two sets $A, B$, we have the projection $\pi_1 : A \times B \to A$.  Therefore, $A^{A \times B} \ne \emptyset$.  If $A\ne\emptyset$ is equivalent to $p$ and $B\ne\emptyset$ is equivalent to $q$, this shows that $p\land q \rightarrow p$ is true.  Since this holds regardless of whether $A, B$ are nonempty, this shows that $p\land q \rightarrow p$ is a tautology.
+	\end{example}
+	
+	\begin{example}
+		If we have $f \in A \multimap (B \multimap C))$, $g \in A \multimap B$, and $x \in A$, then $f(x) \in B\multimap C$, and $g(x) \in B$, so $f(x)(g(x)) \in C$.  Abstracting this into functions, we can construct
+	$$(f \mapsto (g \mapsto (x \mapsto f(x)(g(x))))) \in 
+	(A \multimap (B \multimap C)) \multimap ((A \multimap B) \multimap (A \multimap C)).$$
+	Since this holds regardless of whether $A, B, C$ are nonempty, this shows that $(p \rightarrow (q \rightarrow r)) \rightarrow ((p \rightarrow q) \rightarrow (p \rightarrow r))$ is a tautology.
+	\end{example}
+	
+	\begin{example}
+		Say we have a family of sets $(S_n)_{n=0}^\infty$ indexed by $\mathbb{N}$.  Then given an element $x_0 \in S_0$, and a family of functions $f_n : S_n \to S_{n+1}$ for each $n\in \mathbb{N}$, we can recursively define $x_n \in S_n$ such that $x_0$ is as specified, and $x_{n+1} = f_n(x_n)$.  This construction gives an element of $(S_0 \times \prod_{n=0}^\infty (S_n \multimap S_{n+1})) \multimap \prod_{n=0}^\infty S_n$.  Now, if $p_n$ is a family of propositions indexed by $\mathbb{N}$, such that $p_n$ is equivalent to $S_n \ne \emptyset$, then the corresponding proposition we have proved is: $p_0 \rightarrow [(\forall n \in \mathbb{N}, p_n \rightarrow p_{n+1}) \rightarrow \forall n \in \mathbb{N}, p_n]$.  This is exactly the principle of induction.
+	\end{example}
+	
+	The other direction of the Curry-Howard correspondence is: given a proof of a proposition, it is often straightforward to extract an explicit element of the corresponding set.  This is especially the case if the proof is formalized in a natural deduction proof system, using correspondences between the rules of such a system and basic building blocks of terms in the corresponding sets.
+	
+	\begin{example}
+		Let us take the natural deduction rule ${\rightarrow} I$, which states: suppose $\Gamma$ is some context of propositions which are assumed to be true.  Then if $\Gamma \cup \{ p \} \vdash q$, i.e. when adding $p$ to the context you can prove $q$, then $\Gamma \vdash (p \rightarrow q)$, i.e. in the original context you have proved that $p \rightarrow q$ is true.  This rule can be thought of as ``conditional proof'': to prove an implication proposition, you temporarily assume the left hand side and prove the right hand side.
+	
+	Now, let us suppose you have built up a term $\beta$ representing an element of $T$, possibly with some free variables assumed to be elements of sets corresponding to the propositions of $\Gamma$, along with a ``new'' free variable $x$ assumed to be in $S$.  Then the abstracted function $x \mapsto \beta$ is a term representing an element of $T^S$.  In other words, in the Curry-Howard correspondence, the proof rule ${\rightarrow} I$ corresponds to function abstraction --- also known in computer science or type theory as the $\lambda$ operator, as in lambda calculus.
+	\end{example}
+
+	\begin{example}
+		Let us take the natural deduction rule ${\lor} E$, which states: suppose $\Gamma$ is some context of propositions which are assumed to be true.  Also, suppose $\Gamma \vdash p \lor q$, i.e. from $\Gamma$ you can prove that $p\lor q$ is true; $\Gamma \cup \{ p \} \vdash r$; and $\Gamma \cup \{ q \} \vdash r$.  Then $\Gamma \vdash r$.  This is a formalization of the method of proof by cases: if you can prove $p \lor q$, and then you can split this into cases that $p$ is sufficient to establish what you want, and also that $q$ is sufficient to establish what you want, then that concludes the proof.
+	
+	Now, let us suppose you have built up a term $\delta$ representing an element of $S \sqcup T$, possibly with some free variables assumed to be in sets corresponding to the propositions in $\Gamma$.  Also, suppose you have a term $\alpha$ with a possible additional free variable $x$ assumed to be in $S$, where $\alpha$ represents an element of $U$; and similarly, you have a term $\beta$ with a possible additional free variable $y$ assumed to be in $T$, and $\beta$ also represents an element of $U$.  Then $x \mapsto \alpha$ represents an element of $U^S$, and $y \mapsto \beta$ represents an element of $U^T$, so by the universal property of $S \sqcup T$ as a coproduct set of $S$ and $T$, we have $(x \mapsto \alpha) + (y \mapsto \beta)$ represents an element of $U^{S\sqcup T}$.  Therefore, $[(x \mapsto \alpha) + (y \mapsto \beta)](\delta)$ represents an element of $U$, using only the original free variables corresponding to propositions in $\Gamma$.
+	
+	With a little programming background, this construction may be a bit easier to understand as follows: the disjoint union of two types $A$ and $B$ can be viewed as a tagged union type, where each element contains either a tag $\mathsf{left}$ along with an element of $A$, or a tag $\mathsf{right}$ along with an element of $B$.  Then the construction above might be represented in a typical functional programming language as: $\mathbf{match}~\delta~\mathbf{with}~\mathsf{left}~x \Rightarrow \alpha \,|\, \mathsf{right}~y \Rightarrow \beta~\mathbf{endmatch}$.
+	\end{example}
+	
+	There are a couple notable points which are trickier.  One is proofs involving equality.  One way to handle this is: suppose $x$ and $y$ are in some larger set $S$.  Then we can define $E_x$ as a family of sets indexed by $S$, where $(E_x)_x$ has one element $\rho_x$, and otherwise $(E_x)_y$ is empty.  In this case, the proof rule ${=}I$ that states $x = x$ corresponds to the term $\rho_x$.  On the other hand, the proof rule ${=}E$, otherwise known as the substitution principle, can be used to define a corresponding conversion operator in $T_x \multimap \prod_{y\in S} ((E_x)_y \multimap T_y)$.  This does tend to end up producing terms that are somewhat harder than the others to understand and to reason with, however.
+	
+	The more serious point revolves around the proof rule of double negation elimination, which is needed for classical logic.  This proof rule would correspond to functions in $((S \multimap \emptyset) \multimap \emptyset) \multimap S$.  However, even when $S$ is nonempty, $(S\multimap\emptyset)\multimap\emptyset$ has a single element, so specifying such a function for each set $S$ would amount to a global choice operator, or a Hilbert epsilon operator.  This is not something that can be constructed in the standard axiomatic set theory of ZFC (although introducing a Hilbert epsilon operator turns out to be a conservative extension, so it does not introduce any inconsistency to add it).
+	
+	An alternative is to observe that classical logic can also be produced using Peirce's law, $((p \rightarrow q) \rightarrow p) \rightarrow p$.  The corresponding set $((S \multimap T) \multimap S) \multimap S$ is exactly the type of a functional programming construct known as {\em call with current continuation}, which essentially allows a programmer to save an execution checkpoint, and then later rewind execution to that checkpoint but with a different return value specified.  Adding this construct to a functional programming language introduces considerable issues with reasoning about programs, however.  For example, {\tt f(x) == f(x)} no longer necessarily returns {\tt true}, if one execution of $f$ has had some rewinding happen which the other has not.
+	
+	Given the issues mentioned above with terms corresponding to proofs in classical logic, it would be a natural question to ask which proofs correspond to the terms which avoid Hilbert epsilon and call with current continuation.  It turns out that this gives first-order intuitionistic logic, which therefore becomes of interest to computer scientists.
+\end{document}
